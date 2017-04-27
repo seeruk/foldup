@@ -6,3 +6,5 @@ import:
   version: ^0.7.0
   subpackages:
   - storage
+- package: github.com/gorhill/cronexpr
+  version: ^1.0.0

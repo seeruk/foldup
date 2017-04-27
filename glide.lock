@@ -1,5 +1,5 @@
-hash: 24e4d0009b812d1a32a9f6a849789c2ad97c429dc144a3ff4c01c8883453abe3
-updated: 2017-04-27T22:04:40.987207576+01:00
+hash: 5059999611ba3fb23cfafeb6eb4bbbf4603686624115fdeb431bb59d192b2a42
+updated: 2017-04-27T22:15:20.271590648+01:00
 imports:
 - name: cloud.google.com/go
   version: 2e6a95edb1071d750f6d7db777bf66cd2997af6c
@@ -12,4 +12,6 @@ imports:
   - specification
 - name: github.com/eidolon/wordwrap
   version: e0f54129b8bb1d473949f54546a365468435aeaf
+- name: github.com/gorhill/cronexpr
+  version: a557574d6c024ed6e36acc8b610f5f211c91568a
 testImports: []
