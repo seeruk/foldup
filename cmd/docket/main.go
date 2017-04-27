@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"github.com/SeerUK/docket/pkg/docket/cli"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	os.Exit(cli.CreateApplication().Run(os.Args[1:], os.Environ()))
 }
