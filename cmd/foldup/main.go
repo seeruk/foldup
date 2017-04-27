@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/SeerUK/docket/pkg/docket/cli"
+	"github.com/SeerUK/foldup/pkg/foldup/cli"
 )
 
 func main() {

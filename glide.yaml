@@ -1,4 +1,4 @@
-package: github.com/SeerUK/docket
+package: github.com/SeerUK/foldup
 import:
 - package: github.com/eidolon/console
   version: ^0.2.1

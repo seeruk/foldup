@@ -1,14 +1,15 @@
-hash: 8ddd8b07fe735344a89945157aca8533205253cabf42d4edcaba962bbc5cf20d
-updated: 2017-04-27T21:24:15.218760286+01:00
+hash: 24e4d0009b812d1a32a9f6a849789c2ad97c429dc144a3ff4c01c8883453abe3
+updated: 2017-04-27T22:04:40.987207576+01:00
 imports:
 - name: cloud.google.com/go
   version: 2e6a95edb1071d750f6d7db777bf66cd2997af6c
   subpackages:
   - storage
-- name: github.com/docker/docker
-  version: 2878a859b5ea11d4d380a9e65c3db51eead84816
-  subpackages:
-  - client
 - name: github.com/eidolon/console
   version: 1db5440ff756bcce3db592399d21b8f77e32b5f1
+  subpackages:
+  - parameters
+  - specification
+- name: github.com/eidolon/wordwrap
+  version: e0f54129b8bb1d473949f54546a365468435aeaf
 testImports: []

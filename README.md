@@ -1,2 +1,3 @@
-# docket
-Backup Docker volumes to redundant cloud storage buckets.
+# Foldup
+
+Backup folders as archives to redundant cloud storage buckets.
