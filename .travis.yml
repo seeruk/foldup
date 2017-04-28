@@ -1,6 +1,6 @@
 language: go
 
-+addons:
+addons:
   apt:
     sources:
     - sourceline: "ppa:masterminds/glide"
