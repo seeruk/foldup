@@ -1,9 +1,8 @@
 package command
 
 import (
-	"path"
-
 	"fmt"
+	"path"
 
 	"github.com/SeerUK/foldup/pkg/archive"
 	"github.com/SeerUK/foldup/pkg/xioutil"
@@ -35,13 +34,13 @@ func StartCommand() *console.Command {
 			relativePaths = append(relativePaths, path.Join(dirname, d.Name()))
 		}
 
-		archives, err := archive.Dirsf(relativePaths, "backup-%s-%d")
+		archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
 		if err != nil {
 			return err
 		}
 
-		for _, archive := range archives {
-			fmt.Println(archive)
+		for _, a := range archives {
+			fmt.Println(a)
 		}
 
 		return nil

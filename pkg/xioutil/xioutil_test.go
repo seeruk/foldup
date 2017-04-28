@@ -21,7 +21,7 @@ func TestReadDirsInDir(t *testing.T) {
 	})
 
 	t.Run("should only find directories", func(t *testing.T) {
-		dirs, err := xioutil.ReadDirsInDir("./testing", false)
+		dirs, err := xioutil.ReadDirsInDir("./testdata", false)
 
 		assert.OK(t, err)
 
@@ -42,7 +42,7 @@ func TestReadDirsInDir(t *testing.T) {
 	})
 
 	t.Run("should not list hidden directories is hidden is false", func(t *testing.T) {
-		dirs, err := xioutil.ReadDirsInDir("./testing", false)
+		dirs, err := xioutil.ReadDirsInDir("./testdata", false)
 
 		assert.OK(t, err)
 
@@ -59,7 +59,7 @@ func TestReadDirsInDir(t *testing.T) {
 	})
 
 	t.Run("should list hidden directories is hidden is true", func(t *testing.T) {
-		dirs, err := xioutil.ReadDirsInDir("./testing", true)
+		dirs, err := xioutil.ReadDirsInDir("./testdata", true)
 
 		assert.OK(t, err)
 
