@@ -12,7 +12,7 @@
     </a>
 </p>
 
-Backup folders as archives to redundant cloud storage buckets.
+Backup folders as archives to durable cloud storage buckets.
 
 ## License
 
