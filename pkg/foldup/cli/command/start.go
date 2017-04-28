@@ -1,15 +1,34 @@
 package command
 
-import "github.com/eidolon/console"
+import (
+	"fmt"
+
+	"github.com/SeerUK/foldup/pkg/xioutil"
+	"github.com/eidolon/console"
+	"github.com/eidolon/console/parameters"
+)
 
 // StartCommand creates a command to trigger periodic backups.
 func StartCommand() *console.Command {
-	configure := func(def *console.Definition) {
+	var dirname string
 
+	configure := func(def *console.Definition) {
+		def.AddArgument(console.ArgumentDefinition{
+			Value: parameters.NewStringValue(&dirname),
+			Spec:  "DIRNAME",
+			Desc:  "The directory to archive folders from.",
+		})
 	}
 
 	execute := func(input *console.Input, output *console.Output) error {
-		output.Println("Hello, World!")
+		dirs, err := xioutil.ReadDirsInDir(dirname, false)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, d := range dirs {
+			fmt.Println(d.Name())
+		}
 
 		return nil
 	}

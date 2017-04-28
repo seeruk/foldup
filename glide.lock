@@ -1,5 +1,5 @@
-hash: 5059999611ba3fb23cfafeb6eb4bbbf4603686624115fdeb431bb59d192b2a42
-updated: 2017-04-27T22:15:20.271590648+01:00
+hash: d4a53ed34668b543c455c957b182d439e2769f0d8d391355ca6f6b522361a6cb
+updated: 2017-04-28T12:28:32.642054201+01:00
 imports:
 - name: cloud.google.com/go
   version: 2e6a95edb1071d750f6d7db777bf66cd2997af6c
@@ -14,4 +14,6 @@ imports:
   version: e0f54129b8bb1d473949f54546a365468435aeaf
 - name: github.com/gorhill/cronexpr
   version: a557574d6c024ed6e36acc8b610f5f211c91568a
+- name: github.com/SeerUK/assert
+  version: d8bd44df75261a557bbe1fe4d5b643869e82d666
 testImports: []
