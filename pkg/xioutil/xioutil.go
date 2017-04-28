@@ -22,7 +22,7 @@ func ReadDirsInDir(dirname string, hidden bool) ([]os.FileInfo, error) {
 
 		name := f.Name()
 
-		// Skip "hidden" folders.
+		// If we're not showing hidden folders, let's skip those too.
 		if !hidden && len(name) > 0 && name[:1] == "." {
 			continue
 		}
