@@ -5,11 +5,16 @@ import (
 	"path"
 	"runtime"
 	"sort"
+	"strings"
 	"time"
 )
 
 // cores is the number of logical CPU cores the Go runtime has available to it.
 var cores = runtime.GOMAXPROCS(0)
+
+type Result struct {
+	Error error `json:"error"`
+}
 
 // Dirsf takes an array of directory paths as strings, and a formatting string for the file
 // names, and produces .tar.gz archives for each of the given directories. If any of the directories
@@ -23,30 +28,47 @@ var cores = runtime.GOMAXPROCS(0)
 //
 // Upon success, an array of the archive filenames will be returned.
 func Dirsf(dirnames []string, namefmt string) ([]string, error) {
-	tarFiles := []string{}
+	archives := []string{}
+
+	namefmt = fmt.Sprintf("%s.tar.gz", namefmt)
 	timestamp := time.Now().Unix()
 
-	// Create the names for each archive that will be produced, based on the format provided.
-	namefmt = fmt.Sprintf("%s.tar.gz", namefmt)
-
 	limiter := make(chan bool, cores)
+	errs := make(chan error, 1)
 
-	// Set up the limiter, we fill it with the number of cores we have available.
+	// Prepare the limiter. We fill it with as many values as we want archives to be created in
+	// concurrently. For now, this is the number of logical CPU cores available to the Go runtime.
 	for i := 0; i < cores; i++ {
 		limiter <- true
 	}
 
+	// Archive each directory, if any one fails, we stop then and return that first error.
 	for _, dirname := range dirnames {
-		<-limiter
+		basename := path.Base(dirname)
 
-		go func(d string) {
-			// Simulate longer process.
-			time.Sleep(2 * time.Second)
-			fmt.Printf("%s (%d)\n", d, time.Now().Unix())
+		dest := fmt.Sprintf(namefmt, basename, timestamp)
+		dest = strings.Replace(dest, " ", "_", -1)
 
-			// Release "worker" availability
-			limiter <- true
-		}(dirname)
+		// Add archive name to list result
+		archives = append(archives, dest)
+
+		select {
+		case <-limiter:
+			// Process archiving a directory asynchronously.
+			go func(dirname string, dest string) {
+				err := doArchive(dirname, dest)
+				if err != nil {
+					errs <- err
+				}
+
+				// Release use of limiter
+				limiter <- true
+			}(dirname, dest)
+		case err := <-errs:
+			if err != nil {
+				return archives, err
+			}
+		}
 	}
 
 	// Wait for all workers to finish.
@@ -54,45 +76,24 @@ func Dirsf(dirnames []string, namefmt string) ([]string, error) {
 		<-limiter
 	}
 
-	// ...
-
-	// We probably want to batch this process, we should have that code lying around somewhere still
-	// with channels and threads and whatnot...
-	for _, dirname := range dirnames {
-		basename := path.Base(dirname)
-
-		tarFiles = append(tarFiles, fmt.Sprintf(namefmt, basename, timestamp))
-	}
-
-	fmt.Println(cores)
-
 	// Sort tar filenames so they still come out in alphabetical order.
-	sort.Strings(tarFiles)
+	sort.Strings(archives)
 
-	return tarFiles, nil
+	return archives, nil
 }
 
-// @todo: Instead of splitting the data into chunks, can we process one dir at a time up to a limit
-// (the limit being the number of cores available to the Go runtime).
-//   This also has the benefit that if one core is faster than others for some reason, it won't sit
-//   idle while others have still handling their "chunk".
-//
-//   Can you count the length of a channel? If so, we should add to the channel of ongoing tasks
-//   before we start the Go routine for it, otherwise we could have race conditions.
-//
-// @todo: Can this be a pipeline'd process using channels?
-//   Maybe not, given it's going to be doing IO, we can use channels to inform the application about
-//   when something finishes though.
-//
+// doArchive actually performs the archiving. Taking a path to archive, and returning an error if
+// one occurred.
+func doArchive(path string, dest string) error {
+	time.Sleep(1 * time.Second)
+	fmt.Printf("%s (%d)\n", path, time.Now().Unix())
+
+	return nil
+}
+
 // @todo: How on earth do we test this?
 //   Internal implementation maybe doesn't matter? As long we're blocking waiting for all of them to
 //   finish then the tests should check the result, not what the process is actually doing.
-//
-// @todo: Do we care about outputting anything during this process? Reporting on progress?
-//   Maybe some logging that is spread application-wide is needed? Or maybe just in the command to
-//   be honest, it's not like you should be sat watching foldup do it's thing.
-//
-// @todo: How do we handle failure with in the Go routines? Can we cancel all of the processes? And
-// if we do this, do we need to clean up?
+
+// @todo: Can we cancel all of the processes? And if we do this, do we need to clean up?
 //   ???
-//
