@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-// cores is the number of logical CPU cores the Go runtime has available to it.
-var cores = runtime.GOMAXPROCS(0)
-
 type Result struct {
 	Error error `json:"error"`
 }
@@ -30,9 +27,14 @@ type Result struct {
 func Dirsf(dirnames []string, namefmt string) ([]string, error) {
 	archives := []string{}
 
+	// cores is the number of logical CPU cores the Go runtime has available to it.
+	cores := runtime.GOMAXPROCS(0)
+
+	// Values for generating archive names.
 	namefmt = fmt.Sprintf("%s.tar.gz", namefmt)
 	timestamp := time.Now().Unix()
 
+	// Channels for handling workers.
 	limiter := make(chan bool, cores)
 	errs := make(chan error, 1)
 
@@ -71,12 +73,11 @@ func Dirsf(dirnames []string, namefmt string) ([]string, error) {
 		}
 	}
 
-	// Wait for all workers to finish.
+	// Wait for all workers to finish, if this blocks then something has gone quite wrong.
 	for i := 0; i < cores; i++ {
 		<-limiter
 	}
 
-	// Sort tar filenames so they still come out in alphabetical order.
 	sort.Strings(archives)
 
 	return archives, nil
@@ -90,10 +91,3 @@ func doArchive(path string, dest string) error {
 
 	return nil
 }
-
-// @todo: How on earth do we test this?
-//   Internal implementation maybe doesn't matter? As long we're blocking waiting for all of them to
-//   finish then the tests should check the result, not what the process is actually doing.
-
-// @todo: Can we cancel all of the processes? And if we do this, do we need to clean up?
-//   ???
