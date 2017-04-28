@@ -1,8 +1,13 @@
 package archive
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
+	"io"
+	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
@@ -84,9 +89,56 @@ func Dirsf(dirnames []string, namefmt string) ([]string, error) {
 
 // doArchive actually performs the archiving. Taking a path to archive, and returning an error if
 // one occurred.
-func doArchive(path string, dest string) error {
-	time.Sleep(1 * time.Second)
-	fmt.Printf("%s (%d)\n", path, time.Now().Unix())
+func doArchive(sourcePath string, destPath string) error {
+	// Create the file that we'll write into (the archive).
+	dest, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	defer dest.Close()
+
+	gw := gzip.NewWriter(dest)
+	defer gw.Close()
+
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+
+	return filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		header, err := tar.FileInfoHeader(info, info.Name())
+		if err != nil {
+			return err
+		}
+
+		// Update header's filename to be the full path, otherwise the resulting structure will
+		// simply be flat (RIP my desktop).
+		header.Name = path
+
+		// write the header to the tarball archive
+		if err := tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		source, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		defer source.Close()
+
+		// copy the file data to the tarball
+		if _, err := io.Copy(tw, source); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
