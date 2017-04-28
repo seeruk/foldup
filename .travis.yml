@@ -1,11 +1,21 @@
 language: go
 
++addons:
+  apt:
+    sources:
+    - sourceline: "ppa:masterminds/glide"
+    packages:
+    - glide
+
 go:
 - 1.8
 
-install:
+before_install:
 - go get -u -v github.com/golang/lint/golint
 - go get -u -v golang.org/x/tools/cmd/goimports
+
+install:
+- glide install
 
 script:
 - goimports -l $(find . -type f -name '*.go' ! -path "./vendor/*")
