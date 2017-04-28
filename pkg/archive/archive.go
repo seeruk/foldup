@@ -9,10 +9,6 @@ import (
 	"time"
 )
 
-type Result struct {
-	Error error `json:"error"`
-}
-
 // Dirsf takes an array of directory paths as strings, and a formatting string for the file
 // names, and produces .tar.gz archives for each of the given directories. If any of the directories
 // don't exist, an error will be returned.
