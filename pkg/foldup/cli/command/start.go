@@ -1,8 +1,11 @@
 package command
 
 import (
+	"path"
+
 	"fmt"
 
+	"github.com/SeerUK/foldup/pkg/archive"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
@@ -23,11 +26,22 @@ func StartCommand() *console.Command {
 	execute := func(input *console.Input, output *console.Output) error {
 		dirs, err := xioutil.ReadDirsInDir(dirname, false)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
+		relativePaths := []string{}
+
 		for _, d := range dirs {
-			fmt.Println(d.Name())
+			relativePaths = append(relativePaths, path.Join(dirname, d.Name()))
+		}
+
+		archives, err := archive.Dirsf(relativePaths, "backup-%s-%d")
+		if err != nil {
+			return err
+		}
+
+		for _, archive := range archives {
+			fmt.Println(archive)
 		}
 
 		return nil
