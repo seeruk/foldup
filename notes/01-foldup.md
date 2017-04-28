@@ -1,11 +1,12 @@
 # Foldup
 
-So, what is Foldup? It's a backup tool for containers that uses cloud storage buckets. Docker + 
-Bucket = Foldup. It's not exclusively for Docker though I guess?
+So, what is Foldup? It's a backup tool that utilises cloud storage buckets for storage. Although it
+was initially going to be designed to backup Docker Volumes, it makes more sense to make it a more
+generic tool that can just backup folders in a directory.
 
-The aim is for Foldup to be a flexible tool, able to run in multiple environments (locally / k8s, 
-un-opinionated), that should make backing up volumes from containers to some kind of cloud storage 
-bucket really easy.
+The aim is for Foldup to be a flexible tool, able to run in multiple environments (locally / docker 
+/ k8s, un-opinionated), that should make backing up volumes from containers to some kind of cloud 
+storage bucket really easy.
 
 Here's the general idea of how it would work:
 
