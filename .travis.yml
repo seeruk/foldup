@@ -20,6 +20,6 @@ install:
 script:
 - goimports -l $(find . -type f -name '*.go' ! -path "./vendor/*")
 - test $(goimports -l $(find . -type f -name '*.go') | wc -l) -eq 0
-- golint -set_exit_status $(go list | grep -v vendor)
-- go vet $(go list | grep -v vendor)
-- go test -cover $(go list | grep -v vendor)
+- golint -set_exit_status $(go list ./... | grep -v vendor)
+- go vet $(go list ./... | grep -v vendor)
+- go test -cover $(go list ./... | grep -v vendor)
