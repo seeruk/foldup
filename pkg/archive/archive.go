@@ -43,9 +43,12 @@ func Dirsf(dirnames []string, namefmt string) ([]string, error) {
 	// Archive each directory, if any one fails, we stop then and return that first error.
 	for _, dirname := range dirnames {
 		basename := path.Base(dirname)
+		parent := path.Dir(dirname)
 
+		// Prepare destination filename, this may be a relative path.
 		dest := fmt.Sprintf(namefmt, basename, timestamp)
 		dest = strings.Replace(dest, " ", "_", -1)
+		dest = path.Join(parent, dest)
 
 		// Add archive name to list result
 		archives = append(archives, dest)
