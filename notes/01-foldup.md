@@ -1,9 +1,9 @@
-# Docket
+# Foldup
 
-So, what is Docket? It's a backup tool for containers that uses cloud storage buckets. Docker + 
-Bucket = Docket. It's not exclusively for Docker though I guess?
+So, what is Foldup? It's a backup tool for containers that uses cloud storage buckets. Docker + 
+Bucket = Foldup. It's not exclusively for Docker though I guess?
 
-The aim is for Docket to be a flexible tool, able to run in multiple environments (locally / k8s, 
+The aim is for Foldup to be a flexible tool, able to run in multiple environments (locally / k8s, 
 un-opinionated), that should make backing up volumes from containers to some kind of cloud storage 
 bucket really easy.
 
@@ -27,6 +27,6 @@ and leaving it to do it's thing.
 
 ## Other Thoughts
 
-Object eviction could be handled with Docket, but it might make more sense for that to just have 
+Object eviction could be handled with Foldup, but it might make more sense for that to just have 
 been set up beforehand anyway. It would complicate the interaction with cloud providers as they 
 would all handle it differently. Let's leave that be for now...
