@@ -18,9 +18,10 @@ var open = os.Open
 var readDir = ioutil.ReadDir
 var stat = os.Stat
 
-// Dirsf takes an array of directory paths as strings, and a formatting string for the file names,
-// and produces archives for each of the given directories. If any of the directory names don't
-// exist or aren't directories, an error will be returned.
+// Dirsf takes an array of directory paths as strings, a formatting string for the file names, and a
+// FormatName to identify the type of archive to produce; and produces archives for each of the
+// given directories. If any of the directory names don't exist or aren't directories, an error will
+// be returned.
 //
 // The values in `dirnames` can be absolute, or relative paths for the directories. These are simply
 // passed into stdlib functions that will resolve this for us.
@@ -29,54 +30,49 @@ var stat = os.Stat
 // the current unix timestamp, e.g. `"backup-%s-%c"`.
 //
 // Upon success, an array of the archive filenames will be returned.
-func Dirsf(dirnames []string, nameFmt string, format Format) ([]string, error) {
+func Dirsf(dirnames []string, nameFmt string, formatName FormatName) ([]string, error) {
 	// Cores is the number of logical CPU cores the Go runtime has available to it.
 	cores := runtime.GOMAXPROCS(0)
 
-	limiter := make(chan bool, cores)
-	errs := make(chan error, 1)
+	limChan := make(chan bool, cores)
+	errChan := make(chan error, len(dirnames))
+	resChan := make(chan string, len(dirnames))
 
 	// Prepare the limiter. We fill the channel with as many values as we want archives to be
 	// created concurrently; for now, this is the number of logical CPU cores available.
 	for i := 0; i < cores; i++ {
-		limiter <- true
+		limChan <- true
 	}
 
-	filenames := make([]string, len(dirnames))
-
-	// artifact each directory, if any one fails, we stop then and return that first error.
 	for i, dirname := range dirnames {
-		select {
-		case <-limiter:
-			// Process archiving a directory asynchronously.
-			go func(i int, dirname string) {
-				filename, err := Dirf(dirname, nameFmt, format)
-				if err != nil {
-					errs <- err
-				}
+		<-limChan
 
-				// @todo: Should we only do this if we didn't have an error?
-				filenames[i] = filename
-
-				// Release use of limiter
-				limiter <- true
-			}(i, dirname)
-		case err := <-errs:
-			// @todo: Should we just log errors and carry on? This will halt the entire backup
-			// currently. Either way it's not good I guess...
-			//
-			// If we do carry on, then it will probably mean that we can clean up better though
-			// later on if we continue to try upload, or if we just want to delete the other
-			// produced archives so we're not taking up a bunch of disk space.
+		go func(i int, dirname string) {
+			res, err := Dirf(dirname, nameFmt, formatName)
 			if err != nil {
-				return filenames, err
+				errChan <- err
+			} else {
+				resChan <- res
 			}
-		}
+
+			// Release use of limiter
+			limChan <- true
+		}(i, dirname)
 	}
 
-	// Wait for all workers to finish, if this blocks then something has gone quite wrong.
-	for i := 0; i < cores; i++ {
-		<-limiter
+	filenames := []string{}
+
+	for {
+		select {
+		case err := <-errChan:
+			return []string{}, err
+		case res := <-resChan:
+			filenames = append(filenames, res)
+		}
+
+		if len(dirnames) == len(filenames) {
+			break
+		}
 	}
 
 	sort.Strings(filenames)
@@ -84,8 +80,9 @@ func Dirsf(dirnames []string, nameFmt string, format Format) ([]string, error) {
 	return filenames, nil
 }
 
-// Dirf archives a given source directory, and creates an archive with a name in the given format.
-// If the dirname given does not exist, or is not a directory, an error will be returned.
+// Dirf archives a given source directory, and creates an archive with a name in the given format,
+// in the given archive artifact format (FormatName). If the dirname given does not exist, or is not
+// a directory, an error will be returned.
 //
 // The value of `dirname` can be an absolute or relative path to a directory. It is simply passed
 // into stdlib functions that will resolve this for us.
@@ -94,30 +91,30 @@ func Dirsf(dirnames []string, nameFmt string, format Format) ([]string, error) {
 // the current unix timestamp, e.g. `"backup-%s-%c"`.
 //
 // Upon success, the archive filename will be returned.
-func Dirf(dirname string, nameFmt string, format Format) (string, error) {
+func Dirf(dirname string, nameFmt string, formatName FormatName) (string, error) {
 	parentPath := path.Dir(dirname)
 
 	// Create the destination filename based on the name format, and base path.
 	fileName := fmt.Sprintf(nameFmt, path.Base(dirname), time.Now().Unix())
 	fileName = strings.Replace(fileName, " ", "_", -1)
 
-	producer := producers[format]
+	format, err := findFormatByName(formatName)
+	if err != nil {
+		return "", err
+	}
 
 	// Produce the archive file, with the given name, in the given directory.
-	artifact, err := producer(parentPath, fileName)
+	artifact, err := format.producer(parentPath, fileName)
 	if err != nil {
 		return "", err
 	}
 
 	defer artifact.Close()
 
-	// @todo: Could we put an unexposed walk function in this package? That would leave this file
-	// with only a single remaining usage of xos.FileSystem - which could also be eliminated.
-	// @todo: How do we get the name from the archive?
 	return artifact.Name(), walk(dirname, artifact)
 }
 
-func walk(root string, artifact artifact) error {
+func walk(root string, artifact Artifact) error {
 	info, err := stat(root)
 	if err != nil {
 		return err
@@ -128,7 +125,7 @@ func walk(root string, artifact artifact) error {
 
 // walk traverses a directory tree, starting at the given path. This is a simplified version of the
 // walk function provided in the standard library designed to make testing a little easier.
-func doWalk(path string, info os.FileInfo, artifact artifact) error {
+func doWalk(path string, info os.FileInfo, artifact Artifact) error {
 	err := artifact.AddFile(path, info)
 	if err != nil {
 		return err
