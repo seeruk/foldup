@@ -15,12 +15,11 @@ type Format int
 const (
 	// TarGz is a format that will produce a gzipped tarball with the extension `.tar.gz`.
 	TarGz Format = iota
-	// Stub is a format used for testing that can be forced to error if necessary.
-	Stub
 )
 
+// producers is an array of producer functions that are ordered to match up with the Format
+// constants.
 var producers = [...]producer{
-	tarGzProducer,
 	tarGzProducer,
 }
 
@@ -38,7 +37,28 @@ func tarGzProducer(pathname, filename string) (artifact, error) {
 		return nil, err
 	}
 
-	return newTarGzArchive(file), nil
+	return newTarGzArtifact(file), nil
+}
+
+// namedWriteCloser is an interface that provides functionality for writing data, closing, and
+// fetching a name to identify what is being written.
+//
+// This interface is used primarily for being like *os.File for testing.
+type namedWriteCloser interface {
+	io.WriteCloser
+
+	Name() string
+}
+
+// tarWriteCloser is an interface that provides functionality for writing data, writing tar headers,
+// and closing a tar.
+//
+// WriteHeader would ideally accept an interface, as there are similar implementations for other
+// archive types, but unfortunately that's not how the stdlib was implemented.
+type tarWriteCloser interface {
+	io.WriteCloser
+
+	WriteHeader(hdr *tar.Header) error
 }
 
 // artifact represents an archive to be interacted with.
@@ -47,18 +67,17 @@ type artifact interface {
 
 	// AddFile should take the file at the given path with the given os.FileInfo to the artifact.
 	AddFile(path string, info os.FileInfo) error
-	// Filename returns the artifact's filename.
-	Filename() string
+	// Name returns the artifact's name. In most cases it will be the file name.
+	Name() string
 }
 
 type tarGzArtifact struct {
-	// @todo: Could we make an interface for this that will let us get the name, and close?
-	fw *os.File
-	gw *gzip.Writer
-	tw *tar.Writer
+	fw namedWriteCloser
+	gw io.WriteCloser
+	tw tarWriteCloser
 }
 
-func newTarGzArchive(fw *os.File) artifact {
+func newTarGzArtifact(fw namedWriteCloser) artifact {
 	gw := gzip.NewWriter(fw)
 	tw := tar.NewWriter(gw)
 
@@ -93,9 +112,14 @@ func (a *tarGzArtifact) AddFile(path string, info os.FileInfo) error {
 
 	defer source.Close()
 
-	header, err := tar.FileInfoHeader(info, info.Name())
+	header, err := tar.FileInfoHeader(info, path)
 	if err != nil {
 		return err
+	}
+
+	// @todo: We need to handle these still... this must be things like symlinks?
+	if !info.Mode().IsRegular() {
+		return nil
 	}
 
 	// @todo: remove leading ./ and ../
@@ -113,6 +137,6 @@ func (a *tarGzArtifact) AddFile(path string, info os.FileInfo) error {
 	return nil
 }
 
-func (a *tarGzArtifact) Filename() string {
+func (a *tarGzArtifact) Name() string {
 	return a.fw.Name()
 }

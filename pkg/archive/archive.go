@@ -15,6 +15,7 @@ import (
 // For testing; we can replace these with versions that intercept calls as we need.
 var create = os.Create
 var open = os.Open
+var readDir = ioutil.ReadDir
 var stat = os.Stat
 
 // Dirsf takes an array of directory paths as strings, and a formatting string for the file names,
@@ -110,46 +111,25 @@ func Dirf(dirname string, nameFmt string, format Format) (string, error) {
 
 	defer artifact.Close()
 
-	walkFn := func(path string, info os.FileInfo) error {
-		if info.IsDir() {
-			return nil
-		}
-
-		// @todo: We need to handle these still... this must be things like symlinks?
-		if !info.Mode().IsRegular() {
-			return nil
-		}
-
-		return artifact.AddFile(path, info)
-	}
-
 	// @todo: Could we put an unexposed walk function in this package? That would leave this file
 	// with only a single remaining usage of xos.FileSystem - which could also be eliminated.
 	// @todo: How do we get the name from the archive?
-	return artifact.Filename(), walk(dirname, walkFn)
+	return artifact.Name(), walk(dirname, artifact)
 }
 
-// The way filepath.Walk works seems a little over-complicated for the use-case we have here. By
-// implementing a custom directory tree walker we can simplify it, make it easier to test, and maybe
-// include some logic here that we'll reuse elsewhere to simplify the logic in the utility funcs.
-
-// walkFunc is a simpler alternative to filepath.walkFunc that should allow for easier error
-// handling, mainly by simply not passing in an error that could have just been returned.
-type walkFunc func(path string, info os.FileInfo) error
-
-func walk(root string, walkFn walkFunc) error {
+func walk(root string, artifact artifact) error {
 	info, err := stat(root)
 	if err != nil {
 		return err
 	}
 
-	return doWalk(root, info, walkFn)
+	return doWalk(root, info, artifact)
 }
 
 // walk traverses a directory tree, starting at the given path. This is a simplified version of the
 // walk function provided in the standard library designed to make testing a little easier.
-func doWalk(path string, info os.FileInfo, walkFn walkFunc) error {
-	err := walkFn(path, info)
+func doWalk(path string, info os.FileInfo, artifact artifact) error {
+	err := artifact.AddFile(path, info)
 	if err != nil {
 		return err
 	}
@@ -160,7 +140,7 @@ func doWalk(path string, info os.FileInfo, walkFn walkFunc) error {
 	}
 
 	// Read all of the files in this directory.
-	files, err := ioutil.ReadDir(path)
+	files, err := readDir(path)
 	if err != nil {
 		return err
 	}
@@ -169,11 +149,7 @@ func doWalk(path string, info os.FileInfo, walkFn walkFunc) error {
 		// Create the full path to file.
 		filename := filepath.Join(path, file.Name())
 
-		if err != nil {
-			return err
-		}
-
-		err = doWalk(filename, file, walkFn)
+		err = doWalk(filename, file, artifact)
 		if err != nil {
 			return err
 		}

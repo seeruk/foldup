@@ -100,7 +100,7 @@ func (c *Config) CheckFlags(required RequiredFlags) error {
 	return nil
 }
 
-// Filename returns the filename consulted for standard configuration.
+// Name returns the filename consulted for standard configuration.
 func Filename() string {
 	// TODO(dsymonds): Might need tweaking for Windows.
 	return filepath.Join(os.Getenv("HOME"), ".cbtrc")

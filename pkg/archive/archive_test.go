@@ -1,13 +1,13 @@
-package archive_test
+package archive
 
 import (
+	"errors"
 	"os"
 	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/SeerUK/assert"
-	"github.com/SeerUK/foldup/pkg/archive"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 
 func TestDirf(t *testing.T) {
 	t.Run("should return an archive filename", func(t *testing.T) {
-		filename, err := archive.Dirf(testDir1, testFmtValid, archive.TarGz)
+		filename, err := Dirf(testDir1, testFmtValid, TarGz)
 		assert.OK(t, err)
 
 		matched, err := regexp.MatchString(testPatternValid, filename)
@@ -40,15 +40,15 @@ func TestDirf(t *testing.T) {
 
 	t.Run("should not error when given an invalid format", func(t *testing.T) {
 		// This might seem counter-intuitive, but it's the same behaviour as the fmt package.
-		filename, err := archive.Dirf(testDir1, testFmtInvalid, archive.TarGz)
+		filename, err := Dirf(testDir1, testFmtInvalid, TarGz)
 		assert.OK(t, err)
 
 		err = os.Remove(filename)
 		assert.OK(t, err)
 	})
 
-	t.Run("should create an archive with the returned filedname", func(t *testing.T) {
-		filename, err := archive.Dirf(testDir1, testFmtValid, archive.TarGz)
+	t.Run("should create an archive with the returned filename", func(t *testing.T) {
+		filename, err := Dirf(testDir1, testFmtValid, TarGz)
 
 		assert.OK(t, err)
 
@@ -64,14 +64,31 @@ func TestDirf(t *testing.T) {
 	})
 
 	t.Run("should error if a non-existent directory is given", func(t *testing.T) {
-		filename, err := archive.Dirf(testDir3, testFmtValid, archive.TarGz)
+		filename, err := Dirf(testDir3, testFmtValid, TarGz)
 		assert.NotOK(t, err)
 
 		err = os.Remove(filename)
 		assert.OK(t, err)
 	})
 
-	// @todo: Test contents of archive?
+	t.Run("should error if the archive can't be produced", func(t *testing.T) {
+		create = func(name string) (*os.File, error) {
+			return nil, errors.New("create error")
+		}
+
+		filename, err := Dirf(testDir1, testFmtInvalid, TarGz)
+
+		defer revertStubs()
+		defer func() {
+			if err == nil {
+				os.Remove(filename)
+			}
+		}()
+
+		assert.NotOK(t, err)
+	})
+
+	// @todo: This should also test that an actual archive is produced.
 }
 
 func TestDirsf(t *testing.T) {
