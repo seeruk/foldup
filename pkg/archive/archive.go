@@ -26,8 +26,8 @@ var stat = os.Stat
 // The values in `dirnames` can be absolute, or relative paths for the directories. These are simply
 // passed into stdlib functions that will resolve this for us.
 //
-// The `namefmt` needs to have a single `%s` and a single `%c` in it, for both the base dirname and
-// the current unix timestamp, e.g. `"backup-%s-%c"`.
+// The `namefmt` needs to have a single `%s` and a single `%d` in it, for both the base dirname and
+// the current unix timestamp, e.g. `"backup-%s-%d"`.
 //
 // Upon success, an array of the archive filenames will be returned.
 func Dirsf(dirnames []string, nameFmt string, formatName FormatName) ([]string, error) {
