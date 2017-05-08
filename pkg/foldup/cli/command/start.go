@@ -1,11 +1,15 @@
 package command
 
 import (
+	"os"
 	"path"
 
+	"github.com/SeerUK/foldup/pkg/archive"
+	"github.com/SeerUK/foldup/pkg/storage"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
+	gstorage "google.golang.org/api/storage/v1"
 )
 
 // StartCommand creates a command to trigger periodic backups.
@@ -32,32 +36,33 @@ func StartCommand() *console.Command {
 			relativePaths = append(relativePaths, path.Join(dirname, d.Name()))
 		}
 
-		//archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
-		//if err != nil {
-		//	return err
-		//}
+		archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
+		if err != nil {
+			return err
+		}
 
 		//gateway, err := storage.NewGCSGateway(context.Background(), "backups-sierra", nil)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//for _, a := range archives {
-		//	in, err := os.Open(a)
-		//	if err != nil {
-		//		return err
-		//	}
-		//
-		//	err = gateway.Store(context.Background(), a, in)
-		//	if err != nil {
-		//		return err
-		//	}
-		//
-		//	err = os.Remove(a)
-		//	if err != nil {
-		//		return err
-		//	}
-		//}
+		service, err := storage.NewGCSClient()
+		if err != nil {
+			return err
+		}
+
+		for _, a := range archives {
+			in, err := os.Open(a)
+			if err != nil {
+				return err
+			}
+
+			_, err = service.Objects.Insert("backups-sierra", &gstorage.Object{Name: a}).Media(in).Do()
+			if err != nil {
+				return err
+			}
+
+			err = os.Remove(a)
+			if err != nil {
+				return err
+			}
+		}
 
 		return nil
 	}
