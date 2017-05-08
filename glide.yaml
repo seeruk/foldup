@@ -2,10 +2,6 @@ package: github.com/SeerUK/foldup
 import:
 - package: github.com/eidolon/console
   version: ^0.2.1
-- package: cloud.google.com/go
-  version: ^0.7.0
-  subpackages:
-  - storage
 - package: github.com/gorhill/cronexpr
   version: ^1.0.0
 - package: github.com/SeerUK/assert
