@@ -16,7 +16,6 @@ before_install:
 
 install:
 - glide install
-- go get ./...
 
 script:
 - goimports -l $(find . -type f -name '*.go' ! -path "./vendor/*")
