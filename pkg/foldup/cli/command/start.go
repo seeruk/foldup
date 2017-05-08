@@ -3,7 +3,6 @@ package command
 import (
 	"path"
 
-	"github.com/SeerUK/foldup/pkg/archive"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
@@ -33,10 +32,10 @@ func StartCommand() *console.Command {
 			relativePaths = append(relativePaths, path.Join(dirname, d.Name()))
 		}
 
-		archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
-		if err != nil {
-			return err
-		}
+		//archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
+		//if err != nil {
+		//	return err
+		//}
 
 		//gateway, err := storage.NewGCSGateway(context.Background(), "backups-sierra", nil)
 		//if err != nil {
