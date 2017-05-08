@@ -1,10 +1,13 @@
 package command
 
 import (
-	"fmt"
 	"path"
 
+	"context"
+	"os"
+
 	"github.com/SeerUK/foldup/pkg/archive"
+	"github.com/SeerUK/foldup/pkg/storage"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
@@ -39,8 +42,26 @@ func StartCommand() *console.Command {
 			return err
 		}
 
+		gateway, err := storage.NewGCSGateway(context.Background(), "backups-sierra", nil)
+		if err != nil {
+			return err
+		}
+
 		for _, a := range archives {
-			fmt.Println(a)
+			in, err := os.Open(a)
+			if err != nil {
+				return err
+			}
+
+			err = gateway.Store(context.Background(), a, in)
+			if err != nil {
+				return err
+			}
+
+			err = os.Remove(a)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil

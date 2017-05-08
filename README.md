@@ -14,6 +14,16 @@
 
 Backup folders as archives to durable cloud storage buckets.
 
+## Todo
+
+* [x] "Sprint 0" (Travis, repo setup)
+* [x] Archiving (initially gzipped tarballs)
+* [ ] Storage (initially Google Cloud Storage)
+* [ ] CLI
+* [ ] Docker image
+* [ ] Documentation
+
+
 ## License
 
 MIT
