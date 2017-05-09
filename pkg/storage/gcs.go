@@ -4,59 +4,26 @@ import (
 	"context"
 	"io"
 
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/googleapi"
-	gstorage "google.golang.org/api/storage/v1"
+	"github.com/SeerUK/foldup/pkg/storage/gcs"
 )
 
-const gcsScopeReadWrite = "https://www.googleapis.com/auth/devstorage.read_write"
-
 type GCSGateway struct {
-	bucket  string
-	service *gstorage.Service
+	bucket string
+	client gcs.Client
 }
 
-var gcsDefaultClientFn = google.DefaultClient
-
-func NewGCSClient(bucket string) (Gateway, error) {
-	httpClient, err := gcsDefaultClientFn(context.Background(), gcsScopeReadWrite)
-	if err != nil {
-		return nil, err
+func NewGCSGateway(client gcs.Client, bucket string) Gateway {
+	return &GCSGateway{
+		bucket: bucket,
+		client: client,
 	}
-
-	service, err := gstorage.New(httpClient)
-	if err != nil {
-		return nil, err
-	}
-
-	client := &GCSGateway{
-		bucket:  bucket,
-		service: service,
-	}
-
-	return client, nil
 }
 
-type objectInsertCallDoer interface {
-	Do(opts ...googleapi.CallOption) (*gstorage.Object, error)
-}
+func (g *GCSGateway) Store(ctx context.Context, filename string, reader io.Reader) error {
+	writer := g.client.Bucket(g.bucket).Object(filename).NewWriteCloser(ctx)
+	_, err := io.Copy(writer, reader)
 
-func (c *GCSGateway) Store(ctx context.Context, filename string, reader io.Reader) error {
-	call := c.service.Objects.
-		Insert(c.bucket, &gstorage.Object{Name: filename}).
-		Media(reader)
-
-	_ = prepObjectInsertCall()
-
-	_, err := doObjectInsertCall(call)
+	writer.Close()
 
 	return err
-}
-
-func prepObjectInsertCall() objectInsertCallDoer {
-	return nil
-}
-
-func doObjectInsertCall(call objectInsertCallDoer) (*gstorage.Object, error) {
-	return call.Do()
 }
