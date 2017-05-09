@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	gstorage "cloud.google.com/go/storage"
 	"github.com/SeerUK/foldup/pkg/archive"
 	"github.com/SeerUK/foldup/pkg/storage"
 	"github.com/SeerUK/foldup/pkg/storage/gcs"
@@ -42,12 +43,12 @@ func StartCommand() *console.Command {
 			return err
 		}
 
-		client, err := gcs.NewGoogleClient()
+		storageClient, err := gstorage.NewClient(context.Background())
 		if err != nil {
 			return err
 		}
 
-		//gateway, err := storage.NewGCSGateway(context.Background(), "backups-sierra", nil)
+		client := gcs.NewGoogleClient(storageClient)
 		gateway := storage.NewGCSGateway(client, "backups-sierra")
 
 		for _, a := range archives {

@@ -7,7 +7,6 @@ type StorageBucket interface {
 }
 
 type Bucket interface {
-	// @todo: Return interface
 	Object(name string) Object
 }
 

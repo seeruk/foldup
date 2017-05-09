@@ -2,25 +2,7 @@ package gcs
 
 import (
 	"cloud.google.com/go/storage"
-	"golang.org/x/net/context"
-	"google.golang.org/api/option"
 )
-
-// @todo: How do we create StorageClient in a way we can test? Bearing in mind storage.NewClient
-// actually makes a request to GCS, we need to avoid using that in tests.
-
-var newStorageClientFn = storage.NewClient
-
-// @todo: Move to export_test.go / an _test.go file.
-func newFakeStorageClient(ctx context.Context, opts ...option.ClientOption) (*storage.Client, error) {
-	return &storage.Client{}, nil
-}
-
-// newStorageClient uses the (maybe patched) newStorageClientFn to produce a new StorageClient
-// instance. This is used to wrap the *storage.Client struct in an interface we can re-use.
-func newStorageClient() (StorageClient, error) {
-	return newStorageClientFn(context.Background())
-}
 
 // StorageClient is the interface that lets us mock a *storage.Client instance, we can construct a
 // Client with a StorageClient.
@@ -40,24 +22,9 @@ type GoogleClient struct {
 }
 
 // NewGoogleClient produces a new Client instance, using GoogleClient.
-func NewGoogleClient() (Client, error) {
-	storageClient, err := newStorageClient()
-	if err != nil {
-		return nil, err
-	}
-
-	client := &GoogleClient{
-		storage: storageClient,
-	}
-
-	return client, nil
-}
-
-// NewGoogleClientWithStorageClient produces a new Client instance, using GoogleClient, given a
-// specific StorageClient implementation.
-func NewGoogleClientWithStorageClient(client StorageClient) Client {
+func NewGoogleClient(storageClient StorageClient) Client {
 	return &GoogleClient{
-		storage: client,
+		storage: storageClient,
 	}
 }
 
