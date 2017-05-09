@@ -4,12 +4,13 @@ import (
 	"os"
 	"path"
 
+	"context"
+
 	"github.com/SeerUK/foldup/pkg/archive"
 	"github.com/SeerUK/foldup/pkg/storage"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
-	gstorage "google.golang.org/api/storage/v1"
 )
 
 // StartCommand creates a command to trigger periodic backups.
@@ -42,7 +43,7 @@ func StartCommand() *console.Command {
 		}
 
 		//gateway, err := storage.NewGCSGateway(context.Background(), "backups-sierra", nil)
-		service, err := storage.NewGCSClient()
+		gateway, err := storage.NewGCSClient("backups-sierra")
 		if err != nil {
 			return err
 		}
@@ -53,7 +54,7 @@ func StartCommand() *console.Command {
 				return err
 			}
 
-			_, err = service.Objects.Insert("backups-sierra", &gstorage.Object{Name: a}).Media(in).Do()
+			err = gateway.Store(context.Background(), a, in)
 			if err != nil {
 				return err
 			}
