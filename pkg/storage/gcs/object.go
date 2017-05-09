@@ -1,14 +1,15 @@
 package gcs
 
 import (
+	"context"
 	"io"
 
 	"cloud.google.com/go/storage"
-	"golang.org/x/net/context"
+	xcontext "golang.org/x/net/context"
 )
 
 type StorageObject interface {
-	NewWriter(ctx context.Context) *storage.Writer
+	NewWriter(ctx xcontext.Context) *storage.Writer
 }
 
 type Object interface {

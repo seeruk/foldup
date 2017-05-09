@@ -4,5 +4,10 @@ import:
   version: ^0.2.1
 - package: github.com/gorhill/cronexpr
   version: ^1.0.0
+- package: cloud.google.com/go
+  version: ^0.7.0
+  subpackages:
+  - storage
+testImport:
 - package: github.com/SeerUK/assert
   version: ^1.0.0
