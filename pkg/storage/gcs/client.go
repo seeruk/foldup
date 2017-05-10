@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-// StorageClient is the interface that lets us mock a *storage.Client instance, we can construct a
+// StorageClient is the interface that lets us mock a *storage.Client instance. We can construct a
 // Client with a StorageClient.
 type StorageClient interface {
 	Bucket(name string) *storage.BucketHandle
@@ -28,8 +28,8 @@ func NewGoogleClient(storageClient StorageClient) Client {
 	}
 }
 
-// Bucket wraps a call to the underlying StorageClient, fetching a Bucket, which is like a
-// *storage.BucketHandle.
+// Bucket wraps a call to the underlying StorageClient, creating a Bucket, which is like a
+// *storage.BucketHandle. This should be idempotent.
 func (c *GoogleClient) Bucket(name string) Bucket {
 	gb := c.storage.Bucket(name)
 
