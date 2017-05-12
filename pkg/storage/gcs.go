@@ -26,7 +26,10 @@ func (g *GCSGateway) Store(ctx context.Context, filename string, reader io.Reade
 	writer := g.client.Bucket(g.bucket).Object(filename).NewWriteCloser(ctx)
 	_, err := io.Copy(writer, reader)
 
-	writer.Close()
+	cerr := writer.Close()
+	if cerr != nil {
+		return cerr
+	}
 
 	return err
 }
