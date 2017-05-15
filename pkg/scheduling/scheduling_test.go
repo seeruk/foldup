@@ -7,6 +7,16 @@ import (
 	"github.com/SeerUK/assert"
 )
 
+func TestParseCronExpr(t *testing.T) {
+	t.Run("should error if given an invalid expression", func(t *testing.T) {
+		t.Skip()
+	})
+
+	t.Run("should return a parsed expression that yields the next time", func(t *testing.T) {
+		t.Skip()
+	})
+}
+
 func TestScheduleFunc(t *testing.T) {
 	t.Run("should call the given function, at the given interval", func(t *testing.T) {
 		quit := make(chan int)

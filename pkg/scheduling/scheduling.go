@@ -6,6 +6,16 @@ import (
 	"github.com/gorhill/cronexpr"
 )
 
+type expression interface {
+	Next(time.Time) time.Time
+}
+
+var parseExpr = parseCronExpr
+
+func parseCronExpr(expr string) (expression, error) {
+	return cronexpr.Parse(expr)
+}
+
 // ScheduleFunc takes a cron-like expression, and a callback function to execute on a schedule. It
 // will run indefinitely, or until there is an error. If there is an error, it will be returned.
 // This function is synchronous, and will block.
@@ -16,12 +26,12 @@ import (
 func ScheduleFunc(quit chan int, expr string, fn func() error) error {
 	prev := time.Now()
 
-	for {
-		cexpr, err := cronexpr.Parse(expr)
-		if err != nil {
-			return err
-		}
+	cexpr, err := parseExpr(expr)
+	if err != nil {
+		return err
+	}
 
+	for {
 		next := cexpr.Next(prev)
 		dur := next.Sub(prev)
 
