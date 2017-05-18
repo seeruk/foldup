@@ -47,9 +47,7 @@ func ScheduleFunc(quit chan int, expr string, fn func() error) error {
 				return err
 			}
 		case <-quit:
-			break
+			return nil
 		}
 	}
-
-	return nil
 }
