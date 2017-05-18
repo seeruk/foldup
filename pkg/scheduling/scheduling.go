@@ -1,6 +1,7 @@
 package scheduling
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gorhill/cronexpr"
@@ -10,7 +11,10 @@ type expression interface {
 	Next(time.Time) time.Time
 }
 
-var parseExpr = parseCronExpr
+var (
+	parseExpr = parseCronExpr
+	timeNow   = time.Now
+)
 
 func parseCronExpr(expr string) (expression, error) {
 	return cronexpr.Parse(expr)
@@ -23,12 +27,13 @@ func parseCronExpr(expr string) (expression, error) {
 // The `expr` parameter is the cron-like expression (we're using github.com/gorhill/cronexpr).
 // The `quit` parameter is a channel that can be sent any int that will break the loop.
 // The `fn` parameter is a callback function that will be called each scheduled interval.
-func ScheduleFunc(quit chan int, expr string, fn func() error) error {
-	prev := time.Now()
+func ScheduleFunc(quit chan int, errs chan error, expr string, fn func() error) {
+	prev := timeNow()
 
 	cexpr, err := parseExpr(expr)
 	if err != nil {
-		return err
+		errs <- err
+		return
 	}
 
 	for {
@@ -43,11 +48,16 @@ func ScheduleFunc(quit chan int, expr string, fn func() error) error {
 		select {
 		case <-timer.C:
 			// Call the function, if we error, bail and return it.
-			if err := fn(); err != nil {
-				return err
+			err = fn()
+
+			fmt.Println(err)
+
+			if err != nil {
+				errs <- err
+				return
 			}
 		case <-quit:
-			return nil
+			return
 		}
 	}
 }
