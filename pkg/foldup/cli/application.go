@@ -26,6 +26,6 @@ func CreateApplication() *console.Application {
 // buildCommands instantiates all of the commands registered in the application.
 func buildCommands() []*console.Command {
 	return []*console.Command{
-		command.StartCommand(),
+		command.BackupCommand(),
 	}
 }

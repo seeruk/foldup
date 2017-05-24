@@ -14,15 +14,22 @@ import (
 	"github.com/eidolon/console/parameters"
 )
 
-// StartCommand creates a command to trigger periodic backups.
-func StartCommand() *console.Command {
+// BackupCommand creates a command to trigger periodic backups.
+func BackupCommand() *console.Command {
 	var dirname string
+	var schedule string
 
 	configure := func(def *console.Definition) {
 		def.AddArgument(console.ArgumentDefinition{
 			Value: parameters.NewStringValue(&dirname),
 			Spec:  "DIRNAME",
-			Desc:  "The directory to archive folders from.",
+			Desc:  "The directory to archive folders from",
+		})
+
+		def.AddOption(console.OptionDefinition{
+			Value: parameters.NewStringValue(&schedule),
+			Spec:  "-s, --schedule=SCHEDULE",
+			Desc:  "A cron-like expression, for scheduling recurring backups",
 		})
 	}
 
@@ -74,8 +81,8 @@ func StartCommand() *console.Command {
 	}
 
 	return &console.Command{
-		Name:        "start",
-		Description: "Begin periodically backing up.",
+		Name:        "backup",
+		Description: "Back up directory.",
 		Configure:   configure,
 		Execute:     execute,
 	}
