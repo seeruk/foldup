@@ -1,7 +1,6 @@
 package scheduling
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gorhill/cronexpr"
@@ -49,9 +48,6 @@ func ScheduleFunc(quit chan int, errs chan error, expr string, fn func() error) 
 		case <-timer.C:
 			// Call the function, if we error, bail and return it.
 			err = fn()
-
-			fmt.Println(err)
-
 			if err != nil {
 				errs <- err
 				return
