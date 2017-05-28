@@ -66,6 +66,7 @@ func BackupCommand() *console.Command {
 	}
 }
 
+// doBackup perform performs the actual backup, whether on a schedule or not.
 func doBackup(output *console.Output, dirname string, bucket string) error {
 	// Read the directory names in the given directory.
 	dirs, err := xioutil.ReadDirsInDir(dirname, false)
