@@ -31,15 +31,15 @@ func BackupCommand(factory foldup.Factory) *console.Command {
 		})
 
 		def.AddOption(console.OptionDefinition{
-			Value: parameters.NewStringValue(&schedule),
-			Spec:  "-s, --schedule=SCHEDULE",
-			Desc:  "A cron-like expression, for scheduling recurring backups",
-		})
-
-		def.AddOption(console.OptionDefinition{
 			Value: parameters.NewStringValue(&bucket),
 			Spec:  "-b, --bucket=BUCKET",
 			Desc:  "A bucket name to store the backups in.",
+		})
+
+		def.AddOption(console.OptionDefinition{
+			Value: parameters.NewStringValue(&schedule),
+			Spec:  "-s, --schedule=SCHEDULE",
+			Desc:  "A cron-like expression, for scheduling recurring backups",
 		})
 	}
 
@@ -54,12 +54,12 @@ func BackupCommand(factory foldup.Factory) *console.Command {
 
 			// Schedule a backup that will be recurring.
 			return scheduling.ScheduleFunc(done, schedule, func() error {
-				return doBackup(output, dirname, gateway)
+				return doBackup(dirname, gateway)
 			})
 		}
 
 		// Run a one-off backup.
-		return doBackup(output, dirname, gateway)
+		return doBackup(dirname, gateway)
 	}
 
 	return &console.Command{
@@ -71,7 +71,7 @@ func BackupCommand(factory foldup.Factory) *console.Command {
 }
 
 // doBackup perform performs the actual backup, whether on a schedule or not.
-func doBackup(output *console.Output, dirname string, gateway storage.Gateway) error {
+func doBackup(dirname string, gateway storage.Gateway) error {
 	// Read the directory names in the given directory.
 	dirs, err := xioutil.ReadDirsInDir(dirname, false)
 	if err != nil {
