@@ -19,7 +19,7 @@ Backup folders as archives to durable cloud storage buckets.
 * [x] "Sprint 0" (Travis, repo setup)
 * [x] Archiving (initially gzipped tarballs)
 * [x] Storage (initially Google Cloud Storage)
-* [ ] Scheduling
+* [x] Scheduling
 * [ ] CLI
 * [ ] Docker image
 * [ ] Documentation
