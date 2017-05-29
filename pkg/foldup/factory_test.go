@@ -20,6 +20,12 @@ func TestNewCLIFactory(t *testing.T) {
 
 func TestCliFactory_CreateGCSGateway(t *testing.T) {
 	t.Run("should not error under normal circumstances", func(t *testing.T) {
+		defer revertStubs()
+
+		newGCSClient = func(ctx context.Context, opts ...option.ClientOption) (*gstorage.Client, error) {
+			return &gstorage.Client{}, nil
+		}
+
 		factory := NewCLIFactory()
 
 		_, err := factory.CreateGCSGateway("test-bucket")
