@@ -46,23 +46,17 @@ func TestScheduleFunc(t *testing.T) {
 			next: next,
 		}
 
-		errs := make(chan error)
-		quit := make(chan int)
+		done := make(chan int)
 		call := make(chan string)
 
-		go ScheduleFunc(quit, errs, "* * * * * * *", func() error {
+		err := ScheduleFunc(done, "* * * * * * *", func() error {
 			call <- "called"
-			quit <- 0
+			done <- 1
 
 			return nil
 		})
 
-		select {
-		case res := <-call:
-			assert.Equal(t, "called", res)
-		case err := <-errs:
-			t.Fatal(err)
-		}
+		assert.OK(t, err)
 	})
 
 	t.Run("should quit when asked, as quickly as possible", func(t *testing.T) {

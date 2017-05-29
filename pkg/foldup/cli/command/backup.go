@@ -42,16 +42,13 @@ func BackupCommand() *console.Command {
 	}
 
 	execute := func(input *console.Input, output *console.Output) error {
-		quit := make(chan int)
-		errs := make(chan error)
-
 		if schedule != "" {
+			done := make(chan int)
+
 			// Schedule a backup that will be recurring.
-			go scheduling.ScheduleFunc(quit, errs, schedule, func() error {
+			return scheduling.ScheduleFunc(done, schedule, func() error {
 				return doBackup(output, dirname, bucket)
 			})
-
-			return <-errs
 		}
 
 		// Run a one-off backup.

@@ -26,34 +26,40 @@ func parseCronExpr(expr string) (expression, error) {
 // The `expr` parameter is the cron-like expression (we're using github.com/gorhill/cronexpr).
 // The `quit` parameter is a channel that can be sent any int that will break the loop.
 // The `fn` parameter is a callback function that will be called each scheduled interval.
-func ScheduleFunc(quit chan int, errs chan error, expr string, fn func() error) {
+func ScheduleFunc(done chan int, expr string, fn func() error) error {
 	prev := timeNow()
 
 	cexpr, err := parseExpr(expr)
 	if err != nil {
-		errs <- err
-		return
+		return err
 	}
 
-	for {
-		next := cexpr.Next(prev)
-		dur := next.Sub(prev)
+	errs := make(chan error, 1)
 
-		// Keep the last time, we'll use it in the next loop for better accuracy.
-		prev = next
+	go func() {
+		for {
+			next := cexpr.Next(prev)
+			dur := next.Sub(prev)
 
-		timer := time.NewTimer(dur)
+			// Keep the last time, we'll use it in the next loop for better accuracy.
+			prev = next
 
-		select {
-		case <-timer.C:
-			// Call the function, if we error, bail and return it.
-			err = fn()
-			if err != nil {
-				errs <- err
+			timer := time.NewTimer(dur)
+
+			select {
+			case <-timer.C:
+				// Call the function, if we error, bail and return it.
+				err = fn()
+				if err != nil {
+					errs <- err
+					return
+				}
+			case <-done:
+				errs <- nil
 				return
 			}
-		case <-quit:
-			return
 		}
-	}
+	}()
+
+	return <-errs
 }
