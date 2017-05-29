@@ -97,14 +97,10 @@ func doBackup(output *console.Output, dirname string, gateway storage.Gateway) e
 			return err
 		}
 
-		output.Printf("Uploading '%s'... ", a)
-
 		err = gateway.Store(context.Background(), a, in)
 		if err != nil {
 			return err
 		}
-
-		output.Println("Done!")
 
 		err = os.Remove(a)
 		if err != nil {

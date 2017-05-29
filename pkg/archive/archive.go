@@ -3,6 +3,7 @@ package archive
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -48,12 +49,16 @@ func Dirsf(dirnames []string, nameFmt string, formatName FormatName) ([]string, 
 		<-limChan
 
 		go func(i int, dirname string) {
+			log.Printf("Started archiving directory '%s'...", dirname)
+
 			res, err := Dirf(dirname, nameFmt, formatName)
 			if err != nil {
 				errChan <- err
 			} else {
 				resChan <- res
 			}
+
+			log.Printf("Finished archiving directory '%s'...", dirname)
 
 			// Release use of limiter
 			limChan <- true

@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"io"
+	"log"
 
 	"github.com/SeerUK/foldup/pkg/storage/gcs"
 )
@@ -23,6 +24,8 @@ func NewGCSGateway(client gcs.Client, bucket string) Gateway {
 
 // Store attempts to write a file via the Gateway.
 func (g *GCSGateway) Store(ctx context.Context, filename string, reader io.Reader) error {
+	log.Printf("Started upload archive '%s'...", filename)
+
 	writer := g.client.Bucket(g.bucket).Object(filename).NewWriteCloser(ctx)
 	_, err := io.Copy(writer, reader)
 
@@ -30,6 +33,8 @@ func (g *GCSGateway) Store(ctx context.Context, filename string, reader io.Reade
 	if cerr != nil {
 		return cerr
 	}
+
+	log.Printf("Finished upload archive '%s'...", filename)
 
 	return err
 }
