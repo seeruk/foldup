@@ -5,18 +5,20 @@ import (
 	"os"
 	"path"
 
-	gstorage "cloud.google.com/go/storage"
 	"github.com/SeerUK/foldup/pkg/archive"
+	"github.com/SeerUK/foldup/pkg/foldup"
 	"github.com/SeerUK/foldup/pkg/scheduling"
 	"github.com/SeerUK/foldup/pkg/storage"
-	"github.com/SeerUK/foldup/pkg/storage/gcs"
 	"github.com/SeerUK/foldup/pkg/xioutil"
 	"github.com/eidolon/console"
 	"github.com/eidolon/console/parameters"
 )
 
+// BackupFmt is the filename format for the created archives.
+const BackupFmt = "backup-%s-%d"
+
 // BackupCommand creates a command to trigger periodic backups.
-func BackupCommand() *console.Command {
+func BackupCommand(factory foldup.Factory) *console.Command {
 	var bucket string
 	var dirname string
 	var schedule string
@@ -42,17 +44,22 @@ func BackupCommand() *console.Command {
 	}
 
 	execute := func(input *console.Input, output *console.Output) error {
+		gateway, err := factory.CreateGCSGateway(bucket)
+		if err != nil {
+			return err
+		}
+
 		if schedule != "" {
 			done := make(chan int)
 
 			// Schedule a backup that will be recurring.
 			return scheduling.ScheduleFunc(done, schedule, func() error {
-				return doBackup(output, dirname, bucket)
+				return doBackup(output, dirname, gateway)
 			})
 		}
 
 		// Run a one-off backup.
-		return doBackup(output, dirname, bucket)
+		return doBackup(output, dirname, gateway)
 	}
 
 	return &console.Command{
@@ -64,7 +71,7 @@ func BackupCommand() *console.Command {
 }
 
 // doBackup perform performs the actual backup, whether on a schedule or not.
-func doBackup(output *console.Output, dirname string, bucket string) error {
+func doBackup(output *console.Output, dirname string, gateway storage.Gateway) error {
 	// Read the directory names in the given directory.
 	dirs, err := xioutil.ReadDirsInDir(dirname, false)
 	if err != nil {
@@ -78,18 +85,10 @@ func doBackup(output *console.Output, dirname string, bucket string) error {
 	}
 
 	// Begin archiving the directories that were found.
-	archives, err := archive.Dirsf(relativePaths, "backup-%s-%d", archive.TarGz)
+	archives, err := archive.Dirsf(relativePaths, BackupFmt, archive.TarGz)
 	if err != nil {
 		return err
 	}
-
-	storageClient, err := gstorage.NewClient(context.Background())
-	if err != nil {
-		return err
-	}
-
-	client := gcs.NewGoogleClient(storageClient)
-	gateway := storage.NewGCSGateway(client, bucket)
 
 	// Upload each of the created archives to the storage.
 	for _, a := range archives {
@@ -98,7 +97,7 @@ func doBackup(output *console.Output, dirname string, bucket string) error {
 			return err
 		}
 
-		output.Printf("Uploading '%s' to '%s'... ", a, bucket)
+		output.Printf("Uploading '%s'... ", a)
 
 		err = gateway.Store(context.Background(), a, in)
 		if err != nil {

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/SeerUK/foldup/pkg/foldup"
 	"github.com/SeerUK/foldup/pkg/foldup/cli/command"
 	"github.com/eidolon/console"
 )
@@ -18,14 +19,14 @@ func CreateApplication() *console.Application {
 ╚═╝      ╚═════╝ ╚══════╝╚═════╝  ╚═════╝ ╚═╝
 `
 
-	application.AddCommands(buildCommands())
+	application.AddCommands(buildCommands(foldup.NewCLIFactory()))
 
 	return application
 }
 
 // buildCommands instantiates all of the commands registered in the application.
-func buildCommands() []*console.Command {
+func buildCommands(factory foldup.Factory) []*console.Command {
 	return []*console.Command{
-		command.BackupCommand(),
+		command.BackupCommand(factory),
 	}
 }
