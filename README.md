@@ -21,6 +21,7 @@ Backup folders as archives to durable cloud storage buckets.
 * [x] Storage (initially Google Cloud Storage)
 * [x] Scheduling
 * [ ] CLI
+* [ ] Application output
 * [ ] Docker image
 * [ ] Documentation
 
