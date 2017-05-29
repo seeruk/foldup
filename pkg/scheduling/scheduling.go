@@ -26,14 +26,13 @@ func parseCronExpr(expr string) (expression, error) {
 // The `expr` parameter is the cron-like expression (we're using github.com/gorhill/cronexpr).
 // The `quit` parameter is a channel that can be sent any int that will break the loop.
 // The `fn` parameter is a callback function that will be called each scheduled interval.
-func ScheduleFunc(done chan int, expr string, fn func() error) error {
+func ScheduleFunc(done <-chan int, expr string, fn func() error) error {
 	prev := timeNow()
 
 	cexpr, err := parseExpr(expr)
 	if err != nil {
 		return err
 	}
-
 	errs := make(chan error, 1)
 
 	go func() {

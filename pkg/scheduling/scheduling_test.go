@@ -1,6 +1,7 @@
 package scheduling
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -32,7 +33,7 @@ func TestParseCronExpr(t *testing.T) {
 }
 
 func TestScheduleFunc(t *testing.T) {
-	t.Run("should call the given function, at the given interval", func(t *testing.T) {
+	t.Run("should call the given function, at the given interval, and quit", func(t *testing.T) {
 		defer revertStubs()
 
 		now := time.Now()
@@ -46,28 +47,50 @@ func TestScheduleFunc(t *testing.T) {
 			next: next,
 		}
 
-		done := make(chan int)
-		call := make(chan string)
+		call := make(chan bool, 1)
+		done := make(chan int, 1)
 
 		err := ScheduleFunc(done, "* * * * * * *", func() error {
-			call <- "called"
+			call <- true
 			done <- 1
 
 			return nil
 		})
 
 		assert.OK(t, err)
-	})
-
-	t.Run("should quit when asked, as quickly as possible", func(t *testing.T) {
-		t.Skip()
+		assert.Equal(t, true, <-call)
 	})
 
 	t.Run("should error if an invalid cron expression is passed", func(t *testing.T) {
-		t.Skip()
+		done := make(chan int, 1)
+
+		err := ScheduleFunc(done, "hello world", func() error {
+			return nil
+		})
+
+		assert.NotOK(t, err)
 	})
 
 	t.Run("should error if an error is returned in the callback", func(t *testing.T) {
-		t.Skip()
+		defer revertStubs()
+
+		now := time.Now()
+		next := now.Add(1 * time.Millisecond)
+
+		timeNow = timeNowTest
+		timeNowTestTime = now
+
+		parseExpr = parseExprTest
+		parseExprTestExpr = &testExpression{
+			next: next,
+		}
+
+		done := make(chan int, 1)
+
+		err := ScheduleFunc(done, "* * * * * * *", func() error {
+			return errors.New("This is an error")
+		})
+
+		assert.NotOK(t, err)
 	})
 }
