@@ -10,10 +10,9 @@ type expression interface {
 	Next(time.Time) time.Time
 }
 
-var (
-	parseExpr = parseCronExpr
-	timeNow   = time.Now
-)
+// For testing
+var parseExpr = parseCronExpr
+var timeNow = time.Now
 
 func parseCronExpr(expr string) (expression, error) {
 	return cronexpr.Parse(expr)
