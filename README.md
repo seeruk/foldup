@@ -24,6 +24,7 @@ Backup folders as archives to durable cloud storage buckets.
 * [x] Application output
 * [ ] Docker image
 * [ ] Documentation
+* [ ] Encrypted backups (optional)
 
 
 ## License
