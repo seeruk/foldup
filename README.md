@@ -33,8 +33,8 @@ You _must_ provide some [credentials for GCS][1]. The above example uses a servi
 mounting it into the container, then using the environment variable `GOOGLE_APPLICATION_CREDENTIALS`
 to specify the location of that key file.
 
-The back to backup is specified in the command. You could use it as it is shown above, or you could
-also mount individual directories to a parent folder, like this:
+The folder to backup is specified in the command. You could use it as it is shown above, or you 
+could mount individual directories to a parent folder, like this:
 
 ```
 docker run --rm \
