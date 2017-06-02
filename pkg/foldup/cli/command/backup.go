@@ -17,6 +17,14 @@ import (
 // BackupFmt is the filename format for the created archives.
 const BackupFmt = "backup-%s-%d"
 
+// For testing
+var (
+	archiveDirsf = archive.Dirsf
+	osOpen       = os.Open
+	osRemove     = os.Remove
+	scheduleFunc = scheduling.ScheduleFunc
+)
+
 // BackupCommand creates a command to trigger periodic backups.
 func BackupCommand(factory foldup.Factory) *console.Command {
 	var bucket string
@@ -53,7 +61,7 @@ func BackupCommand(factory foldup.Factory) *console.Command {
 			done := make(chan int)
 
 			// Schedule a backup that will be recurring.
-			return scheduling.ScheduleFunc(done, schedule, func() error {
+			return scheduleFunc(done, schedule, func() error {
 				return doBackup(dirname, gateway)
 			})
 		}
@@ -85,14 +93,14 @@ func doBackup(dirname string, gateway storage.Gateway) error {
 	}
 
 	// Begin archiving the directories that were found.
-	archives, err := archive.Dirsf(relativePaths, BackupFmt, archive.TarGz)
+	archives, err := archiveDirsf(relativePaths, BackupFmt, archive.TarGz)
 	if err != nil {
 		return err
 	}
 
 	// Upload each of the created archives to the storage.
 	for _, a := range archives {
-		in, err := os.Open(a)
+		in, err := osOpen(a)
 		if err != nil {
 			return err
 		}
@@ -102,7 +110,7 @@ func doBackup(dirname string, gateway storage.Gateway) error {
 			return err
 		}
 
-		err = os.Remove(a)
+		err = osRemove(a)
 		if err != nil {
 			return err
 		}
