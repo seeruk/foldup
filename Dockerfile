@@ -17,4 +17,9 @@ WORKDIR /root/
 
 COPY --from=0 /go/src/github.com/SeerUK/foldup/foldup .
 
+RUN set -x \
+    && apk add --update \
+        ca-certificates \
+    && rm -rf /var/cache/apk/*
+
 ENTRYPOINT ["/root/foldup"]

@@ -14,6 +14,42 @@
 
 Backup folders as archives to durable cloud storage buckets.
 
+## Usage
+
+As a user, it's probably easiest to just use the Docker image:
+
+```
+docker run --rm \
+    -v /path/to/backup:/backup \
+    -v /path/to/google/creds.json:/root/creds.json \
+    -e GOOGLE_APPLICATION_CREDENTIALS=/root/creds.json \ 
+    seeruk/foldup \
+    backup /backup \ 
+        --bucket=backups-sierra
+        --schedule="0 * * * *"
+```
+
+You _must_ provide some [credentials for GCS][1]. The above example uses a service account key, 
+mounting it into the container, then using the environment variable `GOOGLE_APPLICATION_CREDENTIALS`
+to specify the location of that key file.
+
+The back to backup is specified in the command. You could use it as it is shown above, or you could
+also mount individual directories to a parent folder, like this:
+
+```
+docker run --rm \
+    -v /1st/to/backup:/backup/1st \
+    -v /2nd/to/backup:/backup/2nd \
+    -v /3rd/to/backup:/backup/3rd \
+    ...
+    backup /backup \ 
+    ...
+```
+
+Foldup backs up all folders in a folder, so you can use this approach easily in a Docker Compose 
+environment, or any other environment where you may have several volumes to back up. This can be 
+especially useful for backing up the built-in Docker volumes.
+
 ## Todo
 
 * [x] "Sprint 0" (Travis, repo setup)
@@ -22,11 +58,13 @@ Backup folders as archives to durable cloud storage buckets.
 * [x] Scheduling
 * [x] CLI
 * [x] Application output
-* [ ] Docker image
-* [ ] Documentation
+* [x] Docker image
+* [x] Documentation
 * [ ] Encrypted backups (optional)
 
 
 ## License
 
 MIT
+
+[1]: https://developers.google.com/identity/protocols/application-default-credentials
