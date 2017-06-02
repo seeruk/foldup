@@ -52,16 +52,9 @@ especially useful for backing up the built-in Docker volumes.
 
 ## Todo
 
-* [x] "Sprint 0" (Travis, repo setup)
-* [x] Archiving (initially gzipped tarballs)
-* [x] Storage (initially Google Cloud Storage)
-* [x] Scheduling
-* [x] CLI
-* [x] Application output
-* [x] Docker image
-* [x] Documentation
-* [ ] Encrypted backups (optional)
-
+* Encrypted backups (maybe)
+* Listing backed up folders
+* Restoring backed up folders
 
 ## License
 
