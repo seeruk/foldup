@@ -20,7 +20,7 @@ Backup folders as archives to durable cloud storage buckets.
 * [x] Archiving (initially gzipped tarballs)
 * [x] Storage (initially Google Cloud Storage)
 * [x] Scheduling
-* [ ] CLI
+* [x] CLI
 * [x] Application output
 * [ ] Docker image
 * [ ] Documentation
