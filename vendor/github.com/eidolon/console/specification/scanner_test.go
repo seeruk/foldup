@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/eidolon/console/assert"
+	"github.com/SeerUK/assert"
 	"github.com/eidolon/console/specification"
 )
 

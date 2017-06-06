@@ -5,7 +5,9 @@ import:
 - package: github.com/gorhill/cronexpr
   version: ^1.0.0
 - package: cloud.google.com/go
-  version: ^0.7.0
+  vcs: git
+  version: master
+  repo: git@github.com:GoogleCloudPlatform/google-cloud-go.git
   subpackages:
   - storage
 testImport:

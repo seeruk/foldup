@@ -1,31 +1,36 @@
-hash: f2bd4801ea3ecd9439ec04bb16aab8935b8dc84704a8ec67f9fe08805ee5c919
-updated: 2017-05-09T23:14:47.671782526+01:00
+hash: a1eaedbf53e6fcec802de934c711b5683273c5cf049b043acdfcc312d724cfcb
+updated: 2017-06-06T14:21:42.614242908+01:00
 imports:
 - name: cloud.google.com/go
-  version: 2e6a95edb1071d750f6d7db777bf66cd2997af6c
+  version: f61bf881756f290878a273d0271f26eea6f4fd1e
+  repo: git@github.com:GoogleCloudPlatform/google-cloud-go.git
+  vcs: git
   subpackages:
   - compute/metadata
+  - iam
   - internal
   - internal/optional
+  - internal/version
   - storage
 - name: github.com/eidolon/console
-  version: 1db5440ff756bcce3db592399d21b8f77e32b5f1
+  version: 8313711ca5de3c7e12c60fa95b2a228cc6806960
   subpackages:
   - parameters
   - specification
 - name: github.com/eidolon/wordwrap
   version: e0f54129b8bb1d473949f54546a365468435aeaf
 - name: github.com/golang/protobuf
-  version: b50ceb1fa9818fa4d78b016c2d4ae025593a7ce3
+  version: 5a0f697c9ed9d68fef0116532c6e05cfeae00e55
   subpackages:
   - proto
+  - protoc-gen-go/descriptor
   - ptypes/any
 - name: github.com/googleapis/gax-go
   version: 9af46dd5a1713e8b5cd71106287eba3cefdde50b
 - name: github.com/gorhill/cronexpr
   version: a557574d6c024ed6e36acc8b610f5f211c91568a
 - name: golang.org/x/net
-  version: feeb485667d1fdabe727840fe00adc22431bc86e
+  version: 59a0b19b5533c7977ddeb86b017bf507ed407b12
   subpackages:
   - context
   - context/ctxhttp
@@ -36,21 +41,21 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/oauth2
-  version: e7a48207996f497ea86f5736d08d99d45c0b6461
+  version: f047394b6d14284165300fd82dad67edb3a4d7f6
   subpackages:
   - google
   - internal
   - jws
   - jwt
 - name: golang.org/x/text
-  version: 470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4
+  version: ccbd3f7822129ff389f8ca4858a9b9d4d910531c
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: 6b6c96b70c6105ce74c491692dee15df07d5b3aa
+  version: 1faa39f42f12a54fa82ca5902a7ab642d5b09ad1
   subpackages:
   - gensupport
   - googleapi
@@ -62,7 +67,7 @@ imports:
   - storage/v1
   - transport
 - name: google.golang.org/appengine
-  version: 170382fa85b10b94728989dfcf6cc818b335c952
+  version: a2f4131514e563cedfdb6e7d267df9ad48591e93
   subpackages:
   - internal
   - internal/app_identity
@@ -76,11 +81,13 @@ imports:
   - socket
   - urlfetch
 - name: google.golang.org/genproto
-  version: 411e09b969b1170a9f0c467558eb4c4c110d9c77
+  version: aa2eb687b4d3e17154372564ad8d6bf11c3cf21f
   subpackages:
+  - googleapis/api/annotations
+  - googleapis/iam/v1
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: ffa4ec7da24e8f4ee690d9aad2afad973e721d7b
+  version: 8de2dff78c3b968a51c99ec526d934f686537437
   subpackages:
   - codes
   - credentials

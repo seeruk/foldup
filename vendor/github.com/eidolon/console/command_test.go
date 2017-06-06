@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/SeerUK/assert"
 	"github.com/eidolon/console"
-	"github.com/eidolon/console/assert"
 )
 
 func TestCommand(t *testing.T) {

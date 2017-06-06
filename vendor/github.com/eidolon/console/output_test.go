@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/SeerUK/assert"
 	"github.com/eidolon/console"
-	"github.com/eidolon/console/assert"
 )
 
 func TestNewOutput(t *testing.T) {
