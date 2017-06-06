@@ -1,9 +1,9 @@
-hash: a1eaedbf53e6fcec802de934c711b5683273c5cf049b043acdfcc312d724cfcb
-updated: 2017-06-06T14:21:42.614242908+01:00
+hash: cf5c68bbc042f52081d52b37e5c2cdb4778640af514d1711f5270b07e4ef73ea
+updated: 2017-06-06T15:03:58.847463671+01:00
 imports:
 - name: cloud.google.com/go
   version: f61bf881756f290878a273d0271f26eea6f4fd1e
-  repo: git@github.com:GoogleCloudPlatform/google-cloud-go.git
+  repo: https://github.com/GoogleCloudPlatform/google-cloud-go.git
   vcs: git
   subpackages:
   - compute/metadata

@@ -7,7 +7,7 @@ import:
 - package: cloud.google.com/go
   vcs: git
   version: master
-  repo: git@github.com:GoogleCloudPlatform/google-cloud-go.git
+  repo: https://github.com/GoogleCloudPlatform/google-cloud-go.git
   subpackages:
   - storage
 testImport:
